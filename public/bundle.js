@@ -46081,43 +46081,74 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var socket_io_client_1 = __webpack_require__(112);
-var PIXI = __webpack_require__(111);
-var socketConnection = socket_io_client_1.connect('http://127.0.0.1:8080');
-var drawnMinions = [];
-socketConnection.on('connect', function (socket) {
-    socketConnection.on('minions', function (minions) {
-        minions.forEach(function (minion) {
-            var _existingMinion = drawnMinions.filter(function (m) { return m.id === minion.id; })[0];
+const socket_io_client_1 = __webpack_require__(112);
+const PIXI = __webpack_require__(111);
+const socketConnection = socket_io_client_1.connect('http://127.0.0.1:8080');
+const drawnMinions = [];
+function* getMinion(minionsArray) {
+    for (let i = 0; i < minionsArray.length; i++) {
+        if (i % 3 == 0)
+            yield {
+                id: minionsArray[i],
+                position: {
+                    x: minionsArray[i + 1],
+                    y: minionsArray[i + 2]
+                }
+            };
+    }
+}
+socketConnection.on('connect', (socket) => {
+    socketConnection.on('minions', (minions) => {
+        const _minions = new Uint16Array(minions);
+        for (let minion of getMinion(_minions)) {
+            const _existingMinion = drawnMinions.filter(m => m.id === minion.id)[0];
             if (_existingMinion) {
-                _existingMinion.graphics.position = minion.position;
-                _existingMinion.graphics.scale = new PIXI.Point(_existingMinion.position.x / minion.position.x, _existingMinion.position.x / minion.position.x);
+                _existingMinion.graphics.position = new PIXI.Point(minion.position.x, minion.position.y);
             }
             else {
-                var _newMinion = createMinion(minion);
+                const _newMinion = createMinion(minion);
                 drawnMinions.push(_newMinion);
-                _newMinion.graphics.position = minion.position;
+                _newMinion.graphics.position = new PIXI.Point(minion.position.x, minion.position.y);
                 stage.addChild(_newMinion.graphics);
             }
-        });
+        }
         app.render(stage);
+        // minions.forEach(minion => {
+        //     const _existingMinion = drawnMinions.filter(m => m.id === minion.id)[0];
+        //
+        //     if (_existingMinion){
+        //         _existingMinion.graphics.position = minion.position;
+        //         _existingMinion.graphics.scale =  new PIXI.Point(_existingMinion.position.x / minion.position.x, _existingMinion.position.x / minion.position.x);
+        //     } else {
+        //         const _newMinion = createMinion(minion);
+        //         drawnMinions.push(_newMinion);
+        //         _newMinion.graphics.position = minion.position;
+        //         stage.addChild(_newMinion.graphics);
+        //     }
+        // });
+        //
+        // app.render(stage);
     });
 });
-var app = PIXI.autoDetectRenderer(800, 600, { backgroundColor: 0x5f5f5f });
+document.querySelector('#add-minions').addEventListener('mousedown', () => {
+    console.log('adawd');
+    socketConnection.emit('change-limit', 50);
+});
+const app = PIXI.autoDetectRenderer(800, 600, { backgroundColor: 0x5f5f5f });
 document.body.appendChild(app.view);
 var stage = new PIXI.Container();
-var createMinion = function (minion) {
-    var graphics = new PIXI.Graphics();
+const createMinion = (minion) => {
+    const graphics = new PIXI.Graphics();
     graphics.beginFill(getRandomColor());
     graphics.moveTo(0, 0);
-    graphics.lineTo(0, 25);
-    graphics.lineTo(25, 25);
-    graphics.lineTo(25, 0);
+    graphics.lineTo(0, 5);
+    graphics.lineTo(5, 5);
+    graphics.lineTo(5, 0);
     graphics.endFill();
-    return __assign({ graphics: graphics }, minion);
+    return __assign({ graphics }, minion);
 };
-var getRandomColor = function () {
-    var _colors = [0xe1b178, 0xe5cfb1, 0xf6d5dc, 0x9a5564, 0x571e27];
+const getRandomColor = () => {
+    const _colors = [0xe1b178, 0xe5cfb1, 0xf6d5dc, 0x9a5564, 0x571e27];
     return _colors[Math.floor(Math.random() * _colors.length)];
 };
 
