@@ -40,10 +40,7 @@ socketConnection.on('connect', (socket: SocketIO.Client) => {
                 _newMinion.graphics.position = new PIXI.Point(minion.position.x, minion.position.y);
                 stage.addChild(_newMinion.graphics);
             }
-
         }
-
-        app.render(stage);
 
         // minions.forEach(minion => {
         //     const _existingMinion = drawnMinions.filter(m => m.id === minion.id)[0];
@@ -64,9 +61,18 @@ socketConnection.on('connect', (socket: SocketIO.Client) => {
 });
 
 document.querySelector('#add-minions').addEventListener('mousedown', ()=>{
-    console.log('adawd');
+    randomizeColor();
     socketConnection.emit('change-limit', 50);
 });
+
+const _rederLoop = () => {
+    app.render(stage);
+    requestAnimationFrame(_rederLoop);
+};
+
+setInterval(()=>{
+    console.log(`We have got ${drawnMinions.length} minions`);
+}, 1000);
 
 const app = PIXI.autoDetectRenderer(800, 600, {backgroundColor: 0x5f5f5f});
 document.body.appendChild(app.view);
@@ -74,6 +80,11 @@ document.body.appendChild(app.view);
 var stage = new PIXI.Container();
 
 const createMinion = (minion: Minion) => {
+    // center the sprite's anchor point
+// center the sprite's anchor point
+
+    // const graphics = PIXI.Sprite.fromImage('spritty.png');
+
     const graphics = new PIXI.Graphics();
 
     graphics.beginFill(getRandomColor());
@@ -89,7 +100,16 @@ const createMinion = (minion: Minion) => {
     };
 };
 
-const getRandomColor = () => {
-    const _colors = [0xe1b178, 0xe5cfb1, 0xf6d5dc, 0x9a5564, 0x571e27];
-    return _colors[Math.floor(Math.random() * _colors.length)];
+let _currentColor: number = 0x000000;
+
+const randomizeColor = () => {
+    const _colors = [0xe1b178, 0xe5cfb1, 0xf6d5dc, 0x9a5564, 0x571e27, 0xFF6666, 0x57FFA2, 0xB2FF4D, 0x7D4296, 0xFFA142];
+    _currentColor = _colors[Math.floor(Math.random() * _colors.length)];
 };
+
+const getRandomColor = () => {
+    return _currentColor;
+
+};
+
+_rederLoop();

@@ -60,7 +60,7 @@ setInterval(() => {
     //var _buf = new ArrayBuffer()
 
     socketServer.emit('minions', _buffer);
-}, 1000 / 25);
+}, 1000 / 40);
 
 const httpServer = createServer(function (request: ServerRequest, response: ServerResponse) {
     request.addListener('end', function () {
