@@ -1,6 +1,7 @@
 import {Position} from "../../engine/position";
-export abstract class Minion {
-    public position: Position;
-    public abstract move: () => void;
-    public abstract calcPath: () => void;
+export interface Minion {
+    position: Position;
+    id: number;
+    move?: () => void;
+    calcPath?: () => void;
 }
