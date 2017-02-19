@@ -17,6 +17,7 @@ gulp.task('server', function () {
 
 gulp.task('build', function(cb){
     exec('npm run compile-server', function (err) {
+        console.log(err);
         cb(err);
     });
 });
